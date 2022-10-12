@@ -6,7 +6,7 @@
 /*   By: tdubois <tdubois@marvin.42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/12 16:20:34 by tdubois           #+#    #+#             */
-/*   Updated: 2022/10/12 16:36:44 by tdubois          ###   ########.fr       */
+/*   Updated: 2022/10/12 17:17:29 by tdubois          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	main(int argc, char **argv)
 	int		fd;
 	char	*line;
 
-	if (strcmp(argv[1], "null") == 0)
+	if (strcmp(argv[2], "null") == 0)
 	{
 		fd = open(FILENAME, O_RDONLY);
 	}
@@ -44,6 +44,10 @@ int	main(int argc, char **argv)
 	{
 		line = get_next_line(fd);
 		printf("%s", line);
+		if (line != NULL)
+		{
+			free(line);
+		}
 	}
 
 	if (strcmp(argv[1], "null") == 0)

@@ -1,30 +1,34 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
+#    test.bash                                          :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: tdubois <tdubois@marvin.42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/10/12 10:36:13 by tdubois           #+#    #+#              #
-#    Updated: 2022/10/12 17:35:08 by tdubois          ###   ########.fr        #
+#    Created: 2022/10/12 16:58:46 by tdubois           #+#    #+#              #
+#    Updated: 2022/10/12 17:51:42 by tdubois          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRC = test.c ../get_next_line.c ../get_next_line_utils.c
-INCLUDE = ..
+run="$(pwd)/test.out"
+
+read -r -d '' input <<'EOF'
+jawdijawid
+wdajwdiawd
+awdaw
+EOF
 
 
-CC = cc
-CFLAGS := -Wall -Wextra -Werror -I $(INCLUDE)
+echo $input
 
-all: build
+output=$(cat << 'EOF'
+jawdijawid
+EOF
+)
 
-build:
-	@echo '=============== BUILD ==============='
-	$(CC) $(CFLAGS) $(SRC) -o test.out
 
-test: build
-	@echo '=============== TEST ================'
-	bash ./test.bash
+testEquality() {
+	assertEquals "$(echo $input | $run 1 0)" "$output"
+}
 
-.PHONY: all test build
+source shunit2/shunit2
