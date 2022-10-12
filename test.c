@@ -1,37 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.cc                                   :+:      :+:    :+:   */
+/*   test.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tdubois <tdubois@marvin.42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/12 10:39:55 by tdubois           #+#    #+#             */
-/*   Updated: 2022/10/12 11:34:05 by tdubois          ###   ########.fr       */
+/*   Created: 2022/10/12 16:20:34 by tdubois           #+#    #+#             */
+/*   Updated: 2022/10/12 16:36:44 by tdubois          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "gtest/gtest.h"
-
-extern "C" {
 #include "get_next_line.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-}
 
-TEST(get_next_line, empty_file) {
-	char path[] = "empty_file.txt";
+#define FILENAME "test.txt"
 
-	int fd = open(path, O_CREAT);
-	close(fd);
+int	main(int argc, char **argv)
+{
+	if (argc != 3)
+	{
+		return (1);
+	}
 
-	fd = open(path, O_RDONLY);
-	char *line0 = get_next_line(fd);
-	close(fd);
+	int const	line_number = atoi(argv[1]);
 
-	printf("get_next_line(0)='%s'\n", line0);
-	EXPECT_STREQ(line0, nullptr);
+	int		fd;
+	char	*line;
 
-	free(line0);
+	if (strcmp(argv[1], "null") == 0)
+	{
+		fd = open(FILENAME, O_RDONLY);
+	}
+	else
+	{
+		fd = atoi(argv[2]);
+	}
+
+	for (int i = 0; i < line_number; i += 1)
+	{
+		line = get_next_line(fd);
+		printf("%s", line);
+	}
+
+	if (strcmp(argv[1], "null") == 0)
+	{
+		close(fd);
+	}
+
+	return (0);
 }
