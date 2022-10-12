@@ -16,14 +16,18 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+include_directories("..")
+
 add_executable(
-  hello_test
-  test.cc
+  runtests
+  get_next_line.cc
+  ../get_next_line.c
+  ../get_next_line_utils.c
 )
 target_link_libraries(
-  hello_test
+  runtests
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(runtests)
