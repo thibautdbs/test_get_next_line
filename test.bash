@@ -5,7 +5,7 @@ shift $#
 tmpdir='/tmp/.test_get_next_line'
 
 function run() {
-	local vgflags='--error-exitcode=1'
+	local vgflags='--error-exitcode=1 -q'
 	local output #can't initialize on same line to retrieve exit code
 	output="$(cat - | valgrind $vgflags $binary $@ 2>&1)"
 
@@ -18,7 +18,7 @@ function run() {
 
 		END
 	fi
-	echo "$output" | grep -v ==
+	echo -n "$output" 
 }
 
 function fd() {
@@ -29,6 +29,18 @@ function fd() {
 	mkfifo $fifo
 	eval "exec $1<>$fifo"
 	echo "$lines" >& $1
+}
+
+test__read_nothing_from_stdin () {
+
+	input=''
+
+	expected_output='(null)'
+
+	output="$(echo -n "$input" | run 0 1)"
+
+	assertEquals "$expected_output" "$output"
+	return 0
 }
 
 test__read_one_line_from_stdin() {
@@ -42,7 +54,7 @@ test__read_one_line_from_stdin() {
 		jawdijawid
 	EOF
 	
-	output="$(echo "$input" | run 0 1)"
+	output="$(run 0 1 <<< "$input")"
 
 	assertEquals "$expected_output"	"$output"
 	return 0
@@ -60,7 +72,7 @@ test__read_two_lines_from_stdin() {
 		wdajwdiawd
 	EOF
 	
-	output="$(echo "$input" | run 0 2)"
+	output="$(run 0 2 <<< "$input")"
 
 	assertEquals "$expected_output"	"$output"
 	return 0
