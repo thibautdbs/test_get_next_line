@@ -6,7 +6,7 @@
 /*   By: tdubois <tdubois@marvin.42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/12 16:20:34 by tdubois           #+#    #+#             */
-/*   Updated: 2022/10/16 04:03:01 by tdubois          ###   ########.fr       */
+/*   Updated: 2022/10/18 18:45:20 by tdubois          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,17 @@
 
 int	main(int argc, char **argv)
 {
+	if (argc == 1)// trhow valgrind error
+	{
+		char	*ptr = malloc(1);
+		ptr[1] = 0;
+		free(ptr);
+		return (0);
+	}
+
 	if ((argc - 1) % 2 != 0)
 	{
-		fprintf(stderr, "wrong number of arguments");
+		printf("wrong number of arguments");
 		return (1);
 	}
 

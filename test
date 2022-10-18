@@ -1,0 +1,91 @@
+#!/bin/env python3
+
+from dataclasses import dataclass
+import subprocess
+import unittest
+import sys
+
+
+@dataclass
+class TestResult():
+    stdout: str
+    stderr: str
+    returncode: int
+    vgoutput: str
+
+BINARY= './gnl'
+VGFLAGS='--error-exitcode=1'
+GDB=False
+
+def vg_run(testcase: unittest.TestCase, 
+        args: str, stdin: str, expected_stdout: str):
+
+    command = f"valgrind {VGFLAGS} {BINARY} {args}".split()
+
+    test = subprocess.run(command, 
+            capture_output=True, 
+            input=stdin.encode())
+
+    stdout = test.stdout.decode()
+    stderr = test.stderr.decode()
+    returncode = test.returncode
+
+    vg_errmsg = (
+        f"\n"
+        f"--> BEGIN valgrind error\n"
+        f"{stderr}"
+        f"--> END valgrind error\n")
+
+    stdout_errmsg = (
+        f"expected <{expected_stdout}>, got <{stdout}>")
+
+    with testcase.subTest(msg='stdout check'):
+        testcase.assertEqual(stdout, expected_stdout, stdout_errmsg)
+    with testcase.subTest(msg='valgrind check'):
+        testcase.assertEqual(returncode, 0, vg_errmsg)
+
+def gdb_run(args: str, stdin: str):
+    command = [
+            "gdb", f"{BINARY}", 
+            "-ex", "tui enable",
+            "-ex", f"start {args}",
+            "-ex", "record"]
+    subprocess.run(command)
+
+def run(testcase: unittest.TestCase, 
+        args: str, stdin: str, expected_stdout: str):
+    if GDB == True:
+        gdb_run(args, stdin)
+    else:
+        vg_run(testcase, args, stdin, expected_stdout)
+
+class test_stdin(unittest.TestCase):
+    def setUp(self):
+        self.longMessage = False
+
+    def test_1line_from_1line(self):
+        stdin= (
+            "line1")
+        expected_stdout = (
+            "line1")
+        
+        run(self, args='0 1', stdin=stdin, expected_stdout=expected_stdout)
+
+    def test_1line_from_2lines(self):
+        stdin= (
+            "line1\n"
+            "line2")
+        expected_stdout = (
+            "line1\n")
+        
+        run(self, args='0 1', stdin=stdin, expected_stdout=expected_stdout)
+
+if __name__ == '__main__':
+    argv = sys.argv
+    if argv.count("gdb") > 0:
+        GDB=True
+        argv.remove("gdb");
+        if len(argv) != 2:
+            print('specify one and only one test to run under gdb')
+            exit(1)
+    unittest.main(argv=argv, verbosity=2)

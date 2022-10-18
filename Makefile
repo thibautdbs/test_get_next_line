@@ -1,34 +1,36 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: tdubois <tdubois@marvin.42.fr>             +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/10/12 10:36:13 by tdubois           #+#    #+#              #
-#    Updated: 2022/10/16 03:15:29 by tdubois          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
 
-SRC = main.c ../get_next_line.c ../get_next_line_utils.c
-INCLUDE = ..
+NAME= gnl
 
+################################################################################
 
-CC = cc
-CFLAGS := -Wall -Wextra -Werror -I $(INCLUDE)
+SRC= ./main.c ../get_next_line.c ../get_next_line_utils.c
+INCLUDE= ..
 
-all: build
+CC= gcc
+CFLAGS= -Wall -Werror -Wextra -ggdb3 -I$(INCLUDE)
 
-build:
-	@echo '=============== BUILD ==============='
-	$(CC) $(CFLAGS) $(SRC) -o test.out
+all: test
 
-debug: CFLAGS += -g
-debug: build
-	gdb ./test.out
+################################################################################
 
-test: build
-	@echo '=============== TEST ================'
-	bash ./test.bash test.out
+test: $(NAME)
+	@echo ============================= Test ===================================
+	@./test
 
-.PHONY: all test build
+gdb-%:
+	@./test gdb $*
+
+.PHONY: test gdb-test%
+
+$(NAME): $(SRC)
+	@echo ============================= Build ==================================
+	$(CC) $(CFLAGS) -o $(NAME) $(SRC)
+
+################################################################################
+
+clean:
+
+fclean: clean
+	rm -f $(NAME)
+
+.PHONY: all clean fclean
