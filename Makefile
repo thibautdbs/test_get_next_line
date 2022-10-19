@@ -20,11 +20,11 @@ test: $(NAME)
 gdb-%:
 	@./test gdb $*
 
-.PHONY: test gdb-test%
+.PHONY: test gdb-%
 
 $(NAME): $(SRC)
 	@echo ============================= Build ==================================
-	$(CC) $(CFLAGS) -o $(NAME) $(SRC)
+	$(CC) $(CFLAGS) -o $(NAME) $(SRC) -D BUFFER_SIZE=1
 
 ################################################################################
 
@@ -33,4 +33,6 @@ clean:
 fclean: clean
 	rm -f $(NAME)
 
-.PHONY: all clean fclean
+re: fclean all
+
+.PHONY: all clean fclean re

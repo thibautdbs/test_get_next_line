@@ -5,7 +5,6 @@ import subprocess
 import unittest
 import sys
 
-
 @dataclass
 class TestResult():
     stdout: str
@@ -37,7 +36,11 @@ def vg_run(testcase: unittest.TestCase,
         f"--> END valgrind error\n")
 
     stdout_errmsg = (
-        f"expected <{expected_stdout}>, got <{stdout}>")
+        f"expected <{expected_stdout}>, got <{stdout}>\n"
+        f"\n"
+        f"You can run this test case in gdb with:\n"
+        f"\n"
+        f"   make gdb-{testcase.id().lstrip('__main__.')}")
 
     with testcase.subTest(msg='stdout check'):
         testcase.assertEqual(stdout, expected_stdout, stdout_errmsg)
@@ -47,9 +50,9 @@ def vg_run(testcase: unittest.TestCase,
 def gdb_run(args: str, stdin: str):
     command = [
             "gdb", f"{BINARY}", 
-            "-ex", "tui enable",
-            "-ex", f"start {args}",
-            "-ex", "record"]
+            "-ex", f"tui enable",
+            "-ex", f"start {args} < <(echo -n '{stdin}')",
+            "-ex", f"record"]
     subprocess.run(command)
 
 def run(testcase: unittest.TestCase, 
@@ -64,7 +67,7 @@ class test_stdin(unittest.TestCase):
         self.longMessage = False
 
     def test_1line_from_1line(self):
-        stdin= (
+        stdin = (
             "line1")
         expected_stdout = (
             "line1")
@@ -72,11 +75,20 @@ class test_stdin(unittest.TestCase):
         run(self, args='0 1', stdin=stdin, expected_stdout=expected_stdout)
 
     def test_1line_from_2lines(self):
-        stdin= (
+        stdin = (
             "line1\n"
             "line2")
         expected_stdout = (
             "line1\n")
+        
+        run(self, args='0 1', stdin=stdin, expected_stdout=expected_stdout)
+
+    def test_1longLine_from_2lines(self):
+        stdin = (
+            "dawdwdagdagwduawduahwiduawjdbawjbawdajwdbuaigwduiahwdiuwahduhawuihdwuiahdwhadoihwaoidhoWIAHDOIAH\n"
+            "wawfafa")
+        expected_stdout = (
+            "dawdwdagdagwduawduahwiduawjdbawjbawdajwdbuaigwduiahwdiuwahduhawuihdwuiahdwhadoihwaoidhoWIAHDOIAH\n")
         
         run(self, args='0 1', stdin=stdin, expected_stdout=expected_stdout)
 
@@ -88,4 +100,4 @@ if __name__ == '__main__':
         if len(argv) != 2:
             print('specify one and only one test to run under gdb')
             exit(1)
-    unittest.main(argv=argv, verbosity=2)
+    unittest.main(argv=argv)
